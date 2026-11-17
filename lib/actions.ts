@@ -15,9 +15,16 @@ const mail = (db: DB, empId: string | null, subject: string, body: string) => {
   const e = db.employees.find((x) => x.id === empId); if (e) sendEmail(db, e.email, subject, body);
 };
 
+// Demo passwords per role (override with env vars). Replace with Clerk for real accounts.
+const PASSWORDS = { employee: process.env.PMS_EMPLOYEE_PASSWORD ?? "1234", manager: process.env.PMS_MANAGER_PASSWORD ?? "5678", hr_admin: process.env.PMS_HR_PASSWORD ?? "0000" };
 export async function signIn(f: FormData) {
-  const id = s(f, "id");
-  if (load().employees.some((e) => e.id === id && e.is_active)) (await cookies()).set("pms_user", id, { httpOnly: true, path: "/" });
+  const id = s(f, "id"), as = s(f, "as") as keyof typeof PASSWORDS, pw = s(f, "password");
+  const back = `/login?as=${as}`;
+  if (!(as in PASSWORDS)) redirect("/login");
+  const u = load().employees.find((e) => e.id === id && e.is_active && e.role === as);
+  if (!u) fail("Please choose a user.", back);
+  if (pw !== PASSWORDS[as]) fail("Incorrect password.", back);
+  (await cookies()).set("pms_user", id, { httpOnly: true, path: "/" });
   redirect("/");
 }
 export async function signOut() { (await cookies()).delete("pms_user"); redirect("/login"); }

@@ -1,9 +1,13 @@
 import { load } from "@/lib/store";
 import { signIn } from "@/lib/actions";
-import { Avatar } from "@/components/ui";
+import Link from "next/link";
+import { Err } from "@/components/ui";
 export const dynamic = "force-dynamic";
-export default function Login() {
-  const emps = load().employees.filter((e) => e.is_active);
+const tabs = [["employee", "Employee"], ["manager", "Manager"], ["hr_admin", "HR admin"]] as const;
+export default async function Login({ searchParams }: { searchParams: Promise<{ as?: string; error?: string }> }) {
+  const { as: a, error } = await searchParams;
+  const as = tabs.some(([k]) => k === a) ? (a as "employee" | "manager" | "hr_admin") : "employee";
+  const emps = load().employees.filter((e) => e.is_active && e.role === as);
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <section className="flex flex-col justify-between bg-navy p-8 text-white lg:p-14">
@@ -16,12 +20,19 @@ export default function Login() {
       <section className="flex items-center justify-center p-6 lg:p-14">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
-          <p className="mt-1 text-sm text-slate-500">Demo mode — choose a user to continue.</p>
-          <div className="mt-6 space-y-2.5">{emps.map((e) => (
-            <form key={e.id} action={signIn}><input type="hidden" name="id" value={e.id} />
-              <button className="card flex w-full cursor-pointer items-center gap-3 !p-3.5 text-left transition hover:border-brand-500 hover:shadow-md">
-                <Avatar name={e.full_name} /><span className="min-w-0 flex-1"><span className="block text-sm font-medium text-slate-900">{e.full_name}</span><span className="text-xs text-slate-500">{e.designation}</span></span>
-                <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium capitalize text-brand-700">{e.role.replace("_", " ")}</span></button></form>))}</div>
+          <p className="mt-1 text-sm text-slate-500">Choose how you are signing in.</p>
+          <div className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/70 p-1 text-center text-sm font-medium">
+            {tabs.map(([k, l]) => <Link key={k} href={`/login?as=${k}`} className={`rounded-lg py-2 ${k === as ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>{l}</Link>)}
+          </div>
+          <div className="mt-4"><Err msg={error} /></div>
+          <form action={signIn} className="card space-y-4">
+            <input type="hidden" name="as" value={as} />
+            <div><label className="label">{as === "employee" ? "Employee" : as === "manager" ? "Manager" : "HR admin"}</label>
+              <select name="id" required defaultValue="" className="input"><option value="" disabled>Select your name…</option>
+                {emps.map((e) => <option key={e.id} value={e.id}>{e.full_name} — {e.designation}</option>)}</select></div>
+            <div><label className="label">Password</label><input name="password" type="password" required autoComplete="current-password" className="input" placeholder="Enter password" /></div>
+            <button className="btn w-full">Sign in as {as === "hr_admin" ? "HR admin" : as}</button>
+          </form>
         </div>
       </section>
     </div>

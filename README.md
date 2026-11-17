@@ -25,6 +25,7 @@ Next.js (App Router, TypeScript, Tailwind) · Clerk · Supabase Postgres · Rese
 npm install
 npm run dev   # http://localhost:3000 — pick a seeded user on /login
 ```
+Sign in by choosing the **Employee**, **Manager** or **HR admin** tab, picking your name and entering the password: employee `1234`, manager `5678`, HR admin `0000` (override with `PMS_EMPLOYEE_PASSWORD`, `PMS_MANAGER_PASSWORD`, `PMS_HR_PASSWORD`).
 Data is kept in `.data/db.json` (delete it to reset). Seed users: one HR admin, two managers, three employees.
 
 ## Environment variables

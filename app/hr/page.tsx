@@ -1,7 +1,7 @@
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { closeCycle, createCycle, openCycleAction, saveEmployee } from "@/lib/actions";
-import { Badge, Err, Shell } from "@/components/ui";
+import { Badge, Err, PageHeader, Shell } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function HR({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -13,11 +13,11 @@ export default async function HR({ searchParams }: { searchParams: Promise<{ err
   const counts = open ? Object.entries(db.reviews.filter((r) => r.cycle_id === open.id).reduce<Record<string, number>>((a, r) => ((a[r.status] = (a[r.status] ?? 0) + 1), a), {})) : [];
   return (
     <Shell user={me}>
-      <h1 className="text-xl font-semibold">HR admin</h1>
-      <div className="mt-4"><Err msg={error} /></div>
+      <PageHeader title="HR admin" sub="Manage cycles and people" />
+      <div><Err msg={error} /></div>
 
       <section className="card">
-        <h2 className="font-medium">Review cycles</h2>
+        <h2 className="section-title">Review cycles</h2>
         <ul className="mt-3 divide-y text-sm">
           {db.review_cycles.map((c) => (
             <li key={c.id} className="flex items-center justify-between gap-2 py-2"><span>{c.name} <span className="text-slate-500">{c.start_date} → {c.end_date}</span></span>
@@ -34,7 +34,7 @@ export default async function HR({ searchParams }: { searchParams: Promise<{ err
       </section>
 
       <section className="card mt-6">
-        <h2 className="font-medium">Employees</h2>
+        <h2 className="section-title">Employees</h2>
         <div className="mt-3 overflow-x-auto"><table className="w-full"><thead><tr><th className="th">Name</th><th className="th">Role</th><th className="th">Manager</th><th className="th">Dept</th><th className="th">Active</th></tr></thead>
           <tbody className="divide-y">{db.employees.map((e) => <tr key={e.id}><td className="td">{e.full_name}<div className="text-xs text-slate-500">{e.email}</div></td><td className="td">{e.role.replace("_", " ")}</td><td className="td">{name(e.manager_id)}</td><td className="td">{e.department}</td><td className="td">{e.is_active ? "Yes" : "No"}</td></tr>)}</tbody></table></div>
         <form action={saveEmployee} className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -48,7 +48,7 @@ export default async function HR({ searchParams }: { searchParams: Promise<{ err
         </form>
       </section>
 
-      <section className="card mt-6"><h2 className="font-medium">Email log <span className="text-xs font-normal text-slate-500">(demo stand-in for Resend)</span></h2>
+      <section className="card mt-6"><h2 className="section-title">Email log <span className="text-xs font-normal text-slate-500">(demo stand-in for Resend)</span></h2>
         <ul className="mt-2 divide-y text-sm">{db.emails.slice(0, 10).map((m) => <li key={m.id} className="py-2"><b>{m.subject}</b> <span className="text-slate-500">→ {m.to}</span></li>)}
           {!db.emails.length && <li className="py-2 text-slate-500">No emails yet.</li>}</ul></section>
     </Shell>

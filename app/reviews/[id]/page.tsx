@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { acknowledge, submitManager, submitSelf } from "@/lib/actions";
-import { Badge, Err, Shell } from "@/components/ui";
+import { Avatar, Badge, Err, Shell, Stepper } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 const Stars = ({ name, def }: { name: string; def?: number | null }) => (
@@ -28,8 +28,8 @@ export default async function ReviewPage({ params, searchParams }: { params: Pro
   const editable = cycle.status === "open";
   return (
     <Shell user={me}>
-      <div className="flex items-center justify-between"><div><h1 className="text-xl font-semibold">{emp.full_name}</h1>
-        <p className="text-sm text-slate-500">{cycle.name} · {emp.designation}</p></div><Badge s={r.status} /></div>
+      <div className="card mb-2"><div className="flex items-center gap-4"><Avatar name={emp.full_name} size={48} /><div className="flex-1"><h1 className="text-xl font-semibold text-slate-900">{emp.full_name}</h1>
+        <p className="text-sm text-slate-500">{emp.designation} · {cycle.name}</p></div><Badge s={r.status} /></div><div className="mt-5"><Stepper status={r.status} /></div></div>
       <div className="mt-4"><Err msg={error} /></div>
 
       {isOwner && r.status === "not_started" && editable ? (

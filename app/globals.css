@@ -1,10 +1,16 @@
 @import "tailwindcss";
-body { @apply bg-slate-50 text-slate-900 antialiased; }
-.card { @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm; }
-.btn { @apply inline-flex items-center rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-700 cursor-pointer; }
-.btn-ghost { @apply inline-flex items-center rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 cursor-pointer; }
-.btn-danger { @apply inline-flex items-center rounded-lg bg-rose-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-rose-700 cursor-pointer; }
-.input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500; }
-.label { @apply mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500; }
-.th { @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500; }
-.td { @apply px-3 py-2.5 text-sm; }
+@theme {
+  --color-brand-50: #eef2ff; --color-brand-100: #e0e7ff; --color-brand-500: #5b5bd6; --color-brand-600: #4b4bc4; --color-brand-700: #3d3da8;
+  --color-ink: #0f172a; --color-navy: #0b1226;
+}
+body { @apply bg-[#f6f7fb] text-slate-800 antialiased; font-family: ui-sans-serif, "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; }
+h1 { @apply tracking-tight; }
+.card { @apply rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,.04),0_4px_16px_-8px_rgba(15,23,42,.08)]; }
+.btn { @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 cursor-pointer; }
+.btn-ghost { @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 cursor-pointer; }
+.btn-danger { @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-medium text-rose-700 ring-1 ring-inset ring-rose-300 transition hover:bg-rose-50 cursor-pointer; }
+.input { @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20; }
+.label { @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500; }
+.th { @apply bg-slate-50 px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500; }
+.td { @apply px-3 py-3 text-sm; }
+.section-title { @apply text-sm font-semibold text-slate-900; }

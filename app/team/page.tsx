@@ -2,7 +2,7 @@ import Link from "next/link";
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { approveGoal, sendBackGoal } from "@/lib/actions";
-import { Badge, Err, Shell } from "@/components/ui";
+import { Badge, Err, PageHeader, Shell } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function Team({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -13,8 +13,8 @@ export default async function Team({ searchParams }: { searchParams: Promise<{ e
   const reports = db.employees.filter((e) => e.manager_id === me.id && e.is_active);
   return (
     <Shell user={me}>
-      <h1 className="text-xl font-semibold">My team</h1>
-      <div className="mt-4"><Err msg={error} /></div>
+      <PageHeader title="My team" sub="Approve goals and review your reports" />
+      <div><Err msg={error} /></div>
       {!cycle ? <p className="card text-slate-600">No cycle is open.</p> : <div className="space-y-4">
         {reports.map((e) => {
           const goals = db.goals.filter((g) => g.employee_id === e.id && g.cycle_id === cycle.id);

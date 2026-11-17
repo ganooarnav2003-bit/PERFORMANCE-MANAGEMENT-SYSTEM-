@@ -1,7 +1,7 @@
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { deleteGoal, saveGoal, submitGoals } from "@/lib/actions";
-import { Badge, Err, Shell } from "@/components/ui";
+import { Badge, Err, PageHeader, Shell } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function Goals({ searchParams }: { searchParams: Promise<{ error?: string; edit?: string }> }) {
@@ -15,8 +15,8 @@ export default async function Goals({ searchParams }: { searchParams: Promise<{ 
   const canSubmit = goals.some((g) => ["draft", "sent_back"].includes(g.status));
   return (
     <Shell user={me}>
-      <h1 className="text-xl font-semibold">My goals {cycle && <span className="text-sm font-normal text-slate-500">· {cycle.name}</span>}</h1>
-      <div className="mt-4"><Err msg={error} /></div>
+      <PageHeader title="My goals" sub={cycle?.name} />
+      <div><Err msg={error} /></div>
       {!cycle ? <p className="card text-slate-600">No cycle is open.</p> : <>
         <div className="space-y-3">
           {goals.map((g) => (

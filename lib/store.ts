@@ -5,7 +5,8 @@ import type { DB, Employee, Role } from "./types";
 
 // Demo persistence: one JSON file with the same five tables as docs/data-model.md.
 // Swap this module for Supabase queries (see supabase/schema.sql) for production.
-const FILE = path.join(process.cwd(), ".data", "db.json");
+// On Vercel only /tmp is writable (and ephemeral), so demo data resets between cold starts.
+const FILE = process.env.VERCEL ? "/tmp/pms-db.json" : path.join(process.cwd(), ".data", "db.json");
 export const uid = () => randomUUID();
 const now = () => new Date().toISOString();
 

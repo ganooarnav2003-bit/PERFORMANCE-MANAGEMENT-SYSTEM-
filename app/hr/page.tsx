@@ -1,8 +1,11 @@
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { closeCycle, createCycle, openCycleAction, saveEmployee } from "@/lib/actions";
+import { Pie, pct } from "@/components/charts";
 import { Badge, Err, PageHeader, Shell } from "@/components/ui";
 export const dynamic = "force-dynamic";
+
+const counts2 = (rs: { status: string }[]) => rs.reduce<Record<string, number>>((a, r) => ((a[r.status] = (a[r.status] ?? 0) + 1), a), {});
 
 export default async function HR({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
@@ -15,6 +18,26 @@ export default async function HR({ searchParams }: { searchParams: Promise<{ err
     <Shell user={me}>
       <PageHeader title="HR admin" sub="Manage cycles and people" />
       <div><Err msg={error} /></div>
+
+      {(() => {
+        const revs = db.reviews.filter((r) => r.cycle_id === (open?.id ?? "")); 
+        const scored = db.reviews.filter((r) => r.overall_manager_rating != null && ["manager_reviewed", "completed"].includes(r.status));
+        const dept = (id: string) => db.employees.find((e) => e.id === id)?.department || "Other";
+        const byDept: Record<string, number> = {}; db.employees.filter((e) => e.is_active).forEach((e) => { byDept[e.department || "Other"] = (byDept[e.department || "Other"] ?? 0) + 1; });
+        const avg: Record<string, number[]> = {}; scored.forEach((r) => (avg[dept(r.employee_id)] ??= []).push(r.overall_manager_rating!));
+        const band = (r: number) => (r >= 4.5 ? "Outstanding (4.5–5)" : r >= 3.5 ? "Exceeds (3.5–4.4)" : r >= 2.5 ? "Meets (2.5–3.4)" : "Needs improvement (<2.5)");
+        const bands: Record<string, number> = {}; scored.forEach((r) => (bands[band(r.overall_manager_rating!)] = (bands[band(r.overall_manager_rating!)] ?? 0) + 1));
+        const co = scored.length ? pct(scored.reduce((a, r) => a + r.overall_manager_rating!, 0) / scored.length) : null;
+        return (
+          <section className="mb-6 grid gap-4 md:grid-cols-2">
+            <div className="card"><h2 className="section-title mb-4">Review progress</h2><Pie data={Object.entries(counts2(revs)).map(([k, v]) => ({ label: k.replace(/_/g, " "), value: v }))} center={revs.length ? `${Math.round((revs.filter((r) => r.status === "completed").length / revs.length) * 100)}%` : ""} sub="completed" empty="Open a cycle to track progress" /></div>
+            <div className="card"><h2 className="section-title mb-4">Company performance</h2><Pie data={Object.entries(bands).map(([label, value]) => ({ label, value }))} center={co != null ? `${co}%` : ""} sub="avg score" empty="Appears once managers submit reviews" /></div>
+            <div className="card"><h2 className="section-title mb-4">Employees by department</h2><Pie data={Object.entries(byDept).map(([label, value]) => ({ label, value }))} center={String(db.employees.filter((e) => e.is_active).length)} sub="people" /></div>
+            <div className="card"><h2 className="section-title mb-4">Average performance by department</h2>
+              <ul className="space-y-3 text-sm">{Object.entries(avg).map(([d, v]) => { const p = pct(v.reduce((a, b) => a + b, 0) / v.length)!; return (
+                <li key={d}><div className="mb-1 flex justify-between"><span>{d}</span><b>{p}%</b></div><div className="h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-brand-500" style={{ width: `${p}%` }} /></div></li>); })}
+                {!Object.keys(avg).length && <li className="text-slate-500">No reviewed appraisals yet</li>}</ul></div>
+          </section>); })()}
 
       <section className="card">
         <h2 className="section-title">Review cycles</h2>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
+import { Pie, pct } from "@/components/charts";
 import { Avatar, Badge, PageHeader, Shell, Stat, Stepper } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,20 @@ export default async function Dashboard() {
       {cycle && myReview && (<>
         <div className="grid gap-4 sm:grid-cols-3">
           <Stat label="Goals" value={myGoals.length} hint={`${myGoals.filter((g) => g.status === "approved").length} approved`} />
-          <Stat label="Self rating" value={myReview.overall_self_rating ?? "—"} hint="out of 5" />
+          <Stat label="Self score" value={pct(myReview.overall_self_rating) != null ? `${pct(myReview.overall_self_rating)}%` : "—"} hint="weighted self rating" />
           <Stat label="Status" value={<Badge s={myReview.status} />} />
         </div>
         <div className="card mt-4"><div className="mb-4 flex items-center justify-between"><h2 className="section-title">My appraisal progress</h2>
           <div className="flex gap-2"><Link className="btn-ghost" href="/goals">Goals</Link><Link className="btn" href={`/reviews/${myReview.id}`}>Open appraisal</Link></div></div>
           <Stepper status={myReview.status} /></div></>)}
+      {cycle && myReview && (
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="card"><h2 className="section-title mb-4">Goal weightage</h2>
+            <Pie data={myGoals.map((g) => ({ label: g.title, value: g.weightage }))} center={`${myGoals.reduce((a, g) => a + g.weightage, 0)}%`} sub="allocated" empty="Add goals to see the split" /></div>
+          <div className="card"><h2 className="section-title mb-4">Performance score</h2>
+            {(() => { const done = myReview.status === "manager_reviewed" || myReview.status === "completed"; const v = pct(done ? myReview.overall_manager_rating : myReview.overall_self_rating);
+              return <Pie data={v == null ? [] : [{ label: done ? "Manager score" : "Self score", value: v, color: "#10b981" }, { label: "Gap to 100%", value: 100 - v, color: "#e2e8f0" }]} center={v == null ? "" : `${v}%`} sub={done ? "manager rated" : "self rated"} empty="Appears after your self-appraisal" />; })()}</div>
+        </div>)}
       {cycle && me.role !== "employee" && (
         <div className="card mt-4">
           <div className="mb-3 flex items-center justify-between"><h2 className="section-title">My team</h2>

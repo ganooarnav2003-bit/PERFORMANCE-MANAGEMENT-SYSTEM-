@@ -38,8 +38,13 @@ export default async function Dashboard() {
         <div className="card mt-4">
           <div className="mb-3 flex items-center justify-between"><h2 className="section-title">My team</h2>
             <span className="text-xs text-slate-500">{pending} goal(s) awaiting approval · {team.filter((r) => r.status === "self_submitted").length} review(s) awaiting you</span></div>
+          {(() => { const st = team.reduce<Record<string, number>>((a, r) => ((a[r.status] = (a[r.status] ?? 0) + 1), a), {});
+            const sc = team.filter((r) => r.overall_manager_rating != null); const avg = sc.length ? pct(sc.reduce((a, r) => a + r.overall_manager_rating!, 0) / sc.length) : null;
+            return (<div className="mb-4 grid gap-6 border-b border-slate-100 pb-4 md:grid-cols-2">
+              <div><div className="label">Team review progress</div><Pie data={Object.entries(st).map(([k, v]) => ({ label: k.replace(/_/g, " "), value: v }))} center={team.length ? `${Math.round(((st.completed ?? 0) / team.length) * 100)}%` : ""} sub="completed" /></div>
+              <div><div className="label">Team performance</div><Pie data={avg == null ? [] : [{ label: "Average score", value: avg, color: "#10b981" }, { label: "Gap to 100%", value: 100 - avg, color: "#e2e8f0" }]} center={avg == null ? "" : `${avg}%`} sub="average" empty="Appears after you submit reviews" /></div></div>); })()}
           <ul className="divide-y divide-slate-100">{team.map((r) => (
-            <li key={r.id}><Link href={`/reviews/${r.id}`} className="flex items-center gap-3 py-3 transition hover:bg-slate-50"><Avatar name={nm(r.employee_id)} size={32} /><span className="flex-1 text-sm font-medium">{nm(r.employee_id)}</span><Badge s={r.status} /></Link></li>))}
+            <li key={r.id}><Link href={`/reviews/${r.id}`} className="flex items-center gap-3 py-3 transition hover:bg-slate-50"><Avatar name={nm(r.employee_id)} size={32} /><span className="flex-1 text-sm font-medium">{nm(r.employee_id)}</span>{pct(r.overall_manager_rating) != null && <b className="mr-3 text-sm tabular-nums">{pct(r.overall_manager_rating)}%</b>}<Badge s={r.status} /></Link></li>))}
             {!team.length && <li className="py-3 text-sm text-slate-500">No direct reports.</li>}</ul>
         </div>)}
       {!cycle && <div className="card text-center text-sm text-slate-500">When HR opens a cycle, your goals and appraisal will appear here.</div>}

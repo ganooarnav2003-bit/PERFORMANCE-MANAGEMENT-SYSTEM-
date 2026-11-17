@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
+import { Guide } from "@/components/content";
 import { Pie, pct } from "@/components/charts";
 import { Avatar, Badge, PageHeader, Shell, Stat, Stepper } from "@/components/ui";
 export const dynamic = "force-dynamic";
@@ -47,6 +48,7 @@ export default async function Dashboard() {
             <li key={r.id}><Link href={`/reviews/${r.id}`} className="flex items-center gap-3 py-3 transition hover:bg-slate-50"><Avatar name={nm(r.employee_id)} size={32} /><span className="flex-1 text-sm font-medium">{nm(r.employee_id)}</span>{pct(r.overall_manager_rating) != null && <b className="mr-3 text-sm tabular-nums">{pct(r.overall_manager_rating)}%</b>}<Badge s={r.status} /></Link></li>))}
             {!team.length && <li className="py-3 text-sm text-slate-500">No direct reports.</li>}</ul>
         </div>)}
+      <Guide role={me.role} />
       {!cycle && <div className="card text-center text-sm text-slate-500">When HR opens a cycle, your goals and appraisal will appear here.</div>}
     </Shell>
   );

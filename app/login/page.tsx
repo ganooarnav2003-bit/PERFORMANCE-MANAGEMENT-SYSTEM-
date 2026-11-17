@@ -1,6 +1,7 @@
 import { load } from "@/lib/store";
 import { signIn } from "@/lib/actions";
 import Link from "next/link";
+import { ROLE_INFO } from "@/components/content";
 import { Err } from "@/components/ui";
 export const dynamic = "force-dynamic";
 const tabs = [["employee", "Employee"], ["manager", "Manager"], ["hr_admin", "HR admin"]] as const;
@@ -24,6 +25,8 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
           <div className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/70 p-1 text-center text-sm font-medium">
             {tabs.map(([k, l]) => <Link key={k} href={`/login?as=${k}`} className={`rounded-lg py-2 ${k === as ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>{l}</Link>)}
           </div>
+          <div className="mt-4 rounded-xl border border-brand-100 bg-brand-50/60 p-4"><div className="text-sm font-semibold text-brand-700">{ROLE_INFO[as].title}</div>
+            <ul className="mt-2 space-y-1 text-sm text-slate-600">{ROLE_INFO[as].points.map((x) => <li key={x} className="flex gap-2"><span className="text-emerald-600">✓</span>{x}</li>)}</ul></div>
           <div className="mt-4"><Err msg={error} /></div>
           <form action={signIn} className="card space-y-4">
             <input type="hidden" name="as" value={as} />

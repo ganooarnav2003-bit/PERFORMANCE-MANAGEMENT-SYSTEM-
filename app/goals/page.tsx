@@ -1,6 +1,7 @@
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { deleteGoal, saveGoal, submitGoals } from "@/lib/actions";
+import { Pie } from "@/components/charts";
 import { Badge, Err, PageHeader, Shell } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,9 @@ export default async function Goals({ searchParams }: { searchParams: Promise<{ 
       <PageHeader title="My goals" sub={cycle?.name} />
       <div><Err msg={error} /></div>
       {!cycle ? <p className="card text-slate-600">No cycle is open.</p> : <>
+        {goals.length > 0 && <div className="card mb-4"><h2 className="section-title mb-4">Goal status</h2>
+          <Pie data={Object.entries(goals.reduce<Record<string, number>>((a, g) => ((a[g.status] = (a[g.status] ?? 0) + 1), a), {})).map(([k, v]) => ({ label: k.replace(/_/g, " "), value: v }))}
+            center={`${Math.round((goals.filter((g) => g.status === "approved").length / goals.length) * 100)}%`} sub="approved" /></div>}
         <div className="space-y-3">
           {goals.map((g) => (
             <div key={g.id} className="card">

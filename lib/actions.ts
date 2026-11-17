@@ -16,7 +16,7 @@ const mail = (db: DB, empId: string | null, subject: string, body: string) => {
 };
 
 // Demo passwords per role (override with env vars). Replace with Clerk for real accounts.
-const PASSWORDS = { employee: process.env.PMS_EMPLOYEE_PASSWORD ?? "1234", manager: process.env.PMS_MANAGER_PASSWORD ?? "5678", hr_admin: process.env.PMS_HR_PASSWORD ?? "0000" };
+const PASSWORDS = { employee: process.env.PMS_EMPLOYEE_PASSWORD ?? "1234", manager: process.env.PMS_MANAGER_PASSWORD ?? "5678", hr_admin: process.env.PMS_HR_PASSWORD ?? "0009" };
 export async function signIn(f: FormData) {
   const id = s(f, "id"), as = s(f, "as") as keyof typeof PASSWORDS, pw = s(f, "password");
   const back = `/login?as=${as}`;

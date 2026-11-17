@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { load } from "@/lib/store";
 import { requireUser } from "@/lib/auth";
 import { acknowledge, submitManager, submitSelf } from "@/lib/actions";
+import { Pie, pct } from "@/components/charts";
 import { Avatar, Badge, Err, Shell, Stepper } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
@@ -63,6 +64,13 @@ export default async function ReviewPage({ params, searchParams }: { params: Pro
           <button className="btn">Submit review</button>
         </form>)}
 
+      {goals.length > 0 && (
+        <div className="card mt-6 grid gap-6 md:grid-cols-2">
+          <div><h2 className="section-title mb-4">Goal weightage</h2><Pie data={goals.map((g) => ({ label: g.title, value: g.weightage }))} center={`${goals.reduce((a, g) => a + g.weightage, 0)}%`} sub="total" /></div>
+          <div><h2 className="section-title mb-4">Performance score</h2>
+            {(() => { const v = pct(showMgr && r.overall_manager_rating ? r.overall_manager_rating : r.overall_self_rating);
+              return <Pie data={v == null ? [] : [{ label: showMgr && r.overall_manager_rating ? "Manager score" : "Self score", value: v, color: "#10b981" }, { label: "Gap to 100%", value: 100 - v, color: "#e2e8f0" }]} center={v == null ? "" : `${v}%`} sub="of 5.0" empty="Appears after self-appraisal" />; })()}</div>
+        </div>)}
       {(r.overall_self_rating || (showMgr && r.overall_manager_rating)) && (
         <div className="card mt-6 grid gap-2 sm:grid-cols-2">
           <div><div className="label">Overall self rating</div><div className="text-2xl font-semibold">{r.overall_self_rating ?? "—"}</div></div>
